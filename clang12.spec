@@ -66,7 +66,7 @@
 
 Name:		%pkg_name
 Version:	%{clang_version}%{?rc_ver:~rc%{rc_ver}}
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -431,6 +431,12 @@ rm -Rvf %{buildroot}%{_includedir}/clang-tidy/
 %if %{without compat_build}
 # Add a symlink in /usr/bin to clang-format-diff
 ln -s %{_datadir}/clang/clang-format-diff.py %{buildroot}%{_bindir}/clang-format-diff
+
+# Create ld.so.conf.d entry
+mkdir -p %{buildroot}%{_sysconfdir}/ld.so.conf.d
+cat >> %{buildroot}%{_sysconfdir}/ld.so.conf.d/%{name}-%{_arch}.conf << EOF
+%{pkg_libdir}
+EOF
 %endif
 
 %check
@@ -526,6 +532,9 @@ false
 
 %endif
 %changelog
+* Fri Sep 17 2021 Tom Stellard <tstellar@redhat.com> - 12.0.1-4
+- Add ld.so.conf.d entry for the install prefix
+
 * Thu Jul 22 2021 Tom Stellard <tstellar@redhat.com> - 12.0.1-3
 - Fix compat build
 
