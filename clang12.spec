@@ -66,7 +66,7 @@
 
 Name:		%pkg_name
 Version:	%{clang_version}%{?rc_ver:~rc%{rc_ver}}
-Release:	7%{?dist}
+Release:	7.rv64%{?dist}
 Summary:	A C language family front-end for LLVM
 
 License:	NCSA
@@ -298,7 +298,7 @@ sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@/64/g' test/lit.cfg.py
 sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@//g' test/lit.cfg.py
 %endif
 
-%ifarch s390 s390x %{arm} %ix86 ppc64le
+%ifarch s390 s390x %{arm} %ix86 ppc64le riscv64
 # Decrease debuginfo verbosity to reduce memory consumption during final library linking
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 %endif
@@ -313,7 +313,7 @@ sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@//g' test/lit.cfg.py
 	-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 	-DPYTHON_EXECUTABLE=%{__python3} \
 	-DCMAKE_INSTALL_RPATH:BOOL=";" \
-%ifarch s390 s390x %{arm} %ix86 ppc64le
+%ifarch s390 s390x %{arm} %ix86 ppc64le riscv64
 	-DCMAKE_C_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 	-DCMAKE_CXX_FLAGS_RELWITHDEBINFO="%{optflags} -DNDEBUG" \
 %endif
@@ -359,6 +359,11 @@ sed -i 's/\@FEDORA_LLVM_LIB_SUFFIX\@//g' test/lit.cfg.py
 %cmake_build
 
 %install
+
+# this path missing on riscv64, create it.
+%ifarch riscv64
+mkdir -p %{py_reproducible_pyc_path}
+%endif
 
 %cmake_install
 
@@ -532,6 +537,9 @@ false
 
 %endif
 %changelog
+* Wed Jul 26 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 12.0.1-7.rv64
+- Fix build on riscv64.
+
 * Wed Jan 18 2023 Fedora Release Engineering <releng@fedoraproject.org> - 12.0.1-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
 
